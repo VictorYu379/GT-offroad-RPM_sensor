@@ -1,5 +1,10 @@
+/** @author Jingkai Yu
+ *  @version 2.0 beta2
+ */
+
+
 int primaryRead = 13;
-int secondaryRead = 12;
+int secondaryRead = 8;
 uint32_t primaryTimer1;
 uint32_t primaryTimer2;
 uint32_t secondaryTimer1;
@@ -16,13 +21,13 @@ boolean primaryLow = false;
 boolean secondaryLow = false;
 int magnetsOnPrimary = 2;
 int magnetsOnSecondary = 2;
-int resetPin = 11;
+int resetPin = 10;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(primaryRead, INPUT);
-  pinMode(secondaryRead, INPUT);
+  pinMode(secondaryRead, INPUT_PULLUP);
   pinMode(resetPin, OUTPUT);
 
   // Initialize the timers
@@ -30,13 +35,13 @@ void setup() {
   primaryTimer2 = millis();
   secondaryTimer1 = millis();
   secondaryTimer2 = millis();
+  
+  // Print to the serial monitor to signal the start
+  Serial.println("started");
 }
 
 
 void loop() {
-  // Print to the serial monitor to signal the start
-  Serial.println("started");
-
 
   // Once approaching of the magnet is detected by primary, go into this logic.
   if (primaryLow) {
@@ -60,8 +65,9 @@ void loop() {
       averagedPrimaryInterval = primaryArraySum / 10;
       
       // Transfer the time difference to RPM (here we putting 2 magnets on the primary CVT)
-      averagedPrimaryInterval = 1000000 / (16 * magnetsOnPrimary * averagedPrimaryInterval);
-      Serial.print(averagedPrimaryInterval + " ");
+      averagedPrimaryInterval = 1000000 / (16 * averagedPrimaryInterval);
+      Serial.print(averagedPrimaryInterval);
+      Serial.println(" ");
 
       // Reset the summation of the array.
       primaryArraySum = 0;
@@ -80,14 +86,17 @@ void loop() {
         secondaryArraySum += secondaryIntervals[i];
       }
       averagedSecondaryInterval = secondaryArraySum / 10;
-      averagedSecondaryInterval = 1000000 / (16 * 2 * averagedSecondaryInterval);
-      Serial.print(averagedSecondaryInterval + "\n");
+      averagedSecondaryInterval = 2000000 / (16 * averagedSecondaryInterval);
+      Serial.print(averagedSecondaryInterval);
+      Serial.println();
       secondaryArraySum = 0;
     }
   }
 
   primaryLow = (digitalRead(primaryRead) == LOW);
   secondaryLow = (digitalRead(secondaryRead) == LOW);
+//  Serial.print(primaryLow);
+//  Serial.println(secondaryLow);
 
   // Make a command to reset the whole system
   if (Serial.available()) {
