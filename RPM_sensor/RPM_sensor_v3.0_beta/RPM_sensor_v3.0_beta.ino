@@ -1,5 +1,5 @@
-const int primaryInputPin = 13;
-const int secondaryInputPin = 11;
+const int primaryInputPin = 3;
+const int secondaryInputPin = 2;
 
 volatile int primaryState = HIGH;
 volatile int secondaryState = HIGH;
@@ -25,18 +25,21 @@ const int resetPin = 10;
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(primaryInputPin, INPUT);
+  pinMode(primaryInputPin, INPUT_PULLUP);
   pinMode(secondaryInputPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(primaryInputPin), primaryIncrement, LOW);
-  attachInterrupt(digitalPinToInterrupt(secondaryInputPin), secondaryIncrement, LOW);
+  attachInterrupt(digitalPinToInterrupt(primaryInputPin), primaryIncrement, FALLING);
+  attachInterrupt(digitalPinToInterrupt(secondaryInputPin), secondaryIncrement, FALLING);
   primaryTimer1 = millis();
   secondaryTimer1 = millis();
+  Serial.begin(9600);
+  Serial.println("Started");
 }
 
 void loop() {
 }
 
 void primaryIncrement() {
+  Serial.println("haha");
   primaryTimer2 = millis();
   primaryArrayIndex = (++primaryArrayIndex) % 8;
   primaryIntervals[primaryArrayIndex] = primaryTimer2 - primaryTimer1;
@@ -51,6 +54,7 @@ void primaryIncrement() {
 
 
 void secondaryIncrement() {
+  Serial.println("ahah");
   secondaryTimer2 = millis();
   secondaryArrayIndex = (++secondaryArrayIndex) % 8;
   secondaryIntervals[secondaryArrayIndex] = secondaryTimer2 - secondaryTimer1;
