@@ -116,7 +116,7 @@ void primaryIncrement() {
   primaryArrayIndex = (++primaryArrayIndex) % 8;
   primaryIntervals[primaryArrayIndex] = primaryTimer2 - primaryTimer1;
   primaryTimer1 = primaryTimer2;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 8; i++) {
     primaryArraySum += primaryIntervals[i];
   }
   averagedPrimaryInterval = 1000000 / (16 * (primaryArraySum / 8));
@@ -144,7 +144,7 @@ void secondaryIncrement() {
   secondaryArrayIndex = (++secondaryArrayIndex) % 8;
   secondaryIntervals[secondaryArrayIndex] = secondaryTimer2 - secondaryTimer1;
   secondaryTimer1 = secondaryTimer2;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 8; i++) {
     secondaryArraySum += secondaryIntervals[i];
   }
   averagedSecondaryInterval = 1000000 / (16 * (secondaryArraySum / 8));
