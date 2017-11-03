@@ -3,8 +3,8 @@
 /*
  * RPM Data Declarations
  */
-const int primaryInputPin = 3;
-const int secondaryInputPin = 2;
+const int primaryInputPin = 21;
+const int secondaryInputPin = 20;
 
 volatile int primaryState = HIGH;
 volatile int secondaryState = HIGH;
@@ -46,7 +46,7 @@ File logfile;
 
 //slows things down, but helpful for debugging
 //not recommended for general usage
-#define ECHO_TO_SERIAL      false
+#define ECHO_TO_SERIAL      true
 
 void setup() {
   // put your setup code here, to run once:
@@ -77,17 +77,17 @@ void setup() {
   Serial.println("card initialized.");
 
   // create a new file with a unique name
-  char filename[] = "RPMDATA00.CSV";
+  char filename[] = "RPM00.CSV";
   for (uint8_t i = 0; i < 100; i++) {
-    filename[7] = i / 10 + '0';
-    filename[8] = i % 10 + '0';
+    filename[3] = i / 10 + '0';
+    filename[4] = i % 10 + '0';
     if (! SD.exists(filename)) {
       // only open a new file if it doesn't exist
       logfile = SD.open(filename, FILE_WRITE);
       break;  // leave the loop!
     }
   }
-
+  
   if (!logfile) {
     error("couldnt create file");
   }
@@ -101,7 +101,7 @@ void setup() {
   logfile.println();
 
   if (ECHO_TO_SERIAL) {
-    Serial.println("primary,secondary")
+    Serial.println("primary,secondary");
   }
 
   
@@ -127,7 +127,7 @@ void primaryIncrement() {
   logfile.print(",");
   logfile.print(averagedSecondaryInterval);
   logfile.println();
-  logfile.flush():
+  logfile.flush();
 
   if (ECHO_TO_SERIAL) {
     Serial.print(averagedPrimaryInterval);
@@ -155,7 +155,7 @@ void secondaryIncrement() {
   logfile.print(",");
   logfile.print(averagedSecondaryInterval);
   logfile.println();
-  logfile.flush():
+  logfile.flush();
 
   if (ECHO_TO_SERIAL) {
     Serial.print(averagedPrimaryInterval);
@@ -163,5 +163,10 @@ void secondaryIncrement() {
     Serial.print(averagedSecondaryInterval);
     Serial.println();
   } 
+}
+
+void error(String error) {
+  Serial.println(error);
+  while(true) delay(1);
 }
 
