@@ -26,20 +26,8 @@ volatile int secondaryArraySum = 0;
 const int magnetsOnPrimary = 2;
 const int magnetsOnSecondary = 2;
 
-const int resetPin = 10;
-
-/*
- * SD Card Declarations
- */
-// the digital pins that connect to the LEDs
-#define redLEDpin 3
-#define greenLEDpin 4
-
 // for the data logging shield, we use digital pin 10 for the SD cs line
 const int chipSelect = 10;
-
-//line counter
-int line;
 
 // the logging file
 File logfile;
@@ -58,9 +46,6 @@ void setup() {
   secondaryTimer1 = millis();
   Serial.begin(9600);
   Serial.println("Initialized Interrupts");
-
-  pinMode(redLEDpin, OUTPUT);
-  pinMode(greenLEDpin, OUTPUT);
 
   // initialize the SD card
   Serial.print("Initializing SD card...");
@@ -124,7 +109,7 @@ void loop() {
 }
 
 void primaryIncrement() {
-  Serial.println("haha");
+//  Serial.println("haha");
   primaryTimer2 = millis();
   primaryArrayIndex = (++primaryArrayIndex) % 8;
   primaryIntervals[primaryArrayIndex] = primaryTimer2 - primaryTimer1;
@@ -139,7 +124,7 @@ void primaryIncrement() {
 
 
 void secondaryIncrement() {
-  Serial.println("ahah");
+//  Serial.println("ahah");
   secondaryTimer2 = millis();
   secondaryArrayIndex = (++secondaryArrayIndex) % 8;
   secondaryIntervals[secondaryArrayIndex] = secondaryTimer2 - secondaryTimer1;
