@@ -86,7 +86,7 @@ void setup() {
   logfile.println();
 
   if (ECHO_TO_SERIAL) {
-    Serial.println("primary,secondary")
+    Serial.println("primary,secondary");
   }
 
   
@@ -97,7 +97,7 @@ void loop() {
   logfile.print(",");
   logfile.print(averagedSecondaryInterval);
   logfile.println();
-  logfile.flush():
+  logfile.flush();
 
   if (ECHO_TO_SERIAL) {
     Serial.print(averagedPrimaryInterval);
@@ -115,9 +115,9 @@ void primaryIncrement() {
   primaryIntervals[primaryArrayIndex] = primaryTimer2 - primaryTimer1;
   primaryTimer1 = primaryTimer2;
   for (int i = 0; i < 8; i++) {
-    primaryArraySum += primaryIntervals[i];
+    primaryArraySum += primaryIntervals[i] * 0.0277 * (i + 1);
   }
-  averagedPrimaryInterval = 1000000 / (16 * (primaryArraySum / 8));
+  averagedPrimaryInterval = 1000000 / (16 * primaryArraySum);
   Serial.println(averagedPrimaryInterval);
   primaryArraySum = 0;
 }
@@ -130,10 +130,14 @@ void secondaryIncrement() {
   secondaryIntervals[secondaryArrayIndex] = secondaryTimer2 - secondaryTimer1;
   secondaryTimer1 = secondaryTimer2;
   for (int i = 0; i < 8; i++) {
-    secondaryArraySum += secondaryIntervals[i];
+    secondaryArraySum += secondaryIntervals[i] * 0.0277 * (i + 1);
   }
-  averagedSecondaryInterval = 1000000 / (16 * (secondaryArraySum / 8));
+  averagedSecondaryInterval = 1000000 / (16 * secondaryArraySum);
   Serial.println(averagedSecondaryInterval);
   secondaryArraySum = 0; 
 }
 
+void error(String error) {
+  Serial.println(error);
+  while(true) delay(1);
+}

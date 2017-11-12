@@ -3,8 +3,8 @@
 /*
  * RPM Data Declarations
  */
-const int primaryInputPin = 21;
-const int secondaryInputPin = 20;
+const int primaryInputPin = 2;
+const int secondaryInputPin = 3;
 
 volatile int primaryState = HIGH;
 volatile int secondaryState = HIGH;
@@ -26,14 +26,9 @@ volatile int secondaryArraySum = 0;
 const int magnetsOnPrimary = 2;
 const int magnetsOnSecondary = 2;
 
-const int resetPin = 10;
-
 /*
  * SD Card Declarations
  */
-// the digital pins that connect to the LEDs
-#define redLEDpin 3
-#define greenLEDpin 4
 
 // for the data logging shield, we use digital pin 10 for the SD cs line
 const int chipSelect = 10;
@@ -58,9 +53,6 @@ void setup() {
   secondaryTimer1 = millis();
   Serial.begin(9600);
   Serial.println("Initialized Interrupts");
-
-  pinMode(redLEDpin, OUTPUT);
-  pinMode(greenLEDpin, OUTPUT);
 
   // initialize the SD card
   Serial.print("Initializing SD card...");
@@ -111,23 +103,24 @@ void loop() {
 }
 
 void primaryIncrement() {
-  Serial.println("haha");
   primaryTimer2 = millis();
   primaryArrayIndex = (++primaryArrayIndex) % 8;
   primaryIntervals[primaryArrayIndex] = primaryTimer2 - primaryTimer1;
   primaryTimer1 = primaryTimer2;
   for (int i = 0; i < 8; i++) {
-    primaryArraySum += primaryIntervals[i];
+    primaryArraySum += primaryIntervals[i] * 0.0277 * (i + 1);
   }
-  averagedPrimaryInterval = 1000000 / (16 * (primaryArraySum / 8));
+  averagedPrimaryInterval = 1000000 / (16 * primaryArraySum * magnetsOnPrimary);
   //Serial.println(averagedPrimaryInterval);
   primaryArraySum = 0;
 
-  logfile.print(averagedPrimaryInterval);
-  logfile.print(",");
-  logfile.print(averagedSecondaryInterval);
-  logfile.println();
-  logfile.flush();
+  if (averagedPrimaryInterval < 50000 || averagedSecondaryInterval < 50000) {
+    logfile.print(averagedPrimaryInterval);
+    logfile.print(",");
+    logfile.print(averagedSecondaryInterval);
+    logfile.println();
+    logfile.flush(); 
+  }
 
   if (ECHO_TO_SERIAL) {
     Serial.print(averagedPrimaryInterval);
@@ -139,23 +132,24 @@ void primaryIncrement() {
 
 
 void secondaryIncrement() {
-  Serial.println("ahah");
   secondaryTimer2 = millis();
   secondaryArrayIndex = (++secondaryArrayIndex) % 8;
   secondaryIntervals[secondaryArrayIndex] = secondaryTimer2 - secondaryTimer1;
   secondaryTimer1 = secondaryTimer2;
   for (int i = 0; i < 8; i++) {
-    secondaryArraySum += secondaryIntervals[i];
+    secondaryArraySum += secondaryIntervals[i] * 0.0277 * (i + 1);
   }
-  averagedSecondaryInterval = 1000000 / (16 * (secondaryArraySum / 8));
+  averagedSecondaryInterval = 1000000 / (16 * secondaryArraySum * magnetsOnSecondary);
   //Serial.println(averagedSecondaryInterval);
   secondaryArraySum = 0;
 
-  logfile.print(averagedPrimaryInterval);
-  logfile.print(",");
-  logfile.print(averagedSecondaryInterval);
-  logfile.println();
-  logfile.flush();
+  if (averagedPrimaryInterval < 50000 || averagedSecondaryInterval < 50000) {
+    logfile.print(averagedPrimaryInterval);
+    logfile.print(",");
+    logfile.print(averagedSecondaryInterval);
+    logfile.println();
+    logfile.flush(); 
+  }
 
   if (ECHO_TO_SERIAL) {
     Serial.print(averagedPrimaryInterval);
