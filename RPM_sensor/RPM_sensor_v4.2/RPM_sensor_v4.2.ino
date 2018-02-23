@@ -142,7 +142,8 @@ void loop() {
     Serial.print(millis());
     Serial.println();
   }
-  
+
+  delay(10);
 }
 
 void primaryIncrement() {
