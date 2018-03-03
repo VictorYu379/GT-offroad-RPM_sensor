@@ -130,7 +130,7 @@ void loop() {
     logfile.println();
     logfile.flush();  
   } else {
-    if (averagedPrimaryInterval > 500 && averagedSecondaryInterval > 500) {
+    if (averagedPrimaryInterval > 500 || averagedSecondaryInterval > 500) {
       beganRecording = true;
     }
   }

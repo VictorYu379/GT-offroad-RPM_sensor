@@ -25,7 +25,7 @@ const int resetPin = 10;
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(primaryInputPin, INPUT);
+  pinMode(primaryInputPin, INPUT_PULLUP);
   pinMode(secondaryInputPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(primaryInputPin), primaryIncrement, LOW);
   attachInterrupt(digitalPinToInterrupt(secondaryInputPin), secondaryIncrement, LOW);

@@ -1,4 +1,4 @@
-const int primaryInputPin = 3;
+const int primaryInputPin = 13;
 const int secondaryInputPin = 2;
 
 volatile int primaryState = HIGH;
