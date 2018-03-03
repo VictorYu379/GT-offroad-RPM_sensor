@@ -15,28 +15,31 @@
 /*
  * RPM Data Declarations
  */
-const int primaryInputPin = 21;
-const int secondaryInputPin = 20;
+const int primaryInputPin = 2;
+const int secondaryInputPin = 3;
 
 volatile int primaryState = HIGH;
 volatile int secondaryState = HIGH;
 
-volatile uint32_t primaryTimer1;
-volatile uint32_t primaryTimer2;
-volatile uint32_t secondaryTimer1;
-volatile uint32_t secondaryTimer2;
-volatile uint32_t averagedPrimaryInterval;
-volatile uint32_t averagedSecondaryInterval;
+volatile int primaryTimer1;
+volatile int primaryTimer2;
+volatile int secondaryTimer1;
+volatile int secondaryTimer2;
+volatile int averagedPrimaryInterval;
+volatile int averagedSecondaryInterval;
 
-volatile uint32_t primaryIntervals[50];
-volatile uint32_t secondaryIntervals[50];
+const int arrayLength = 20;
+const int SDRecordingThreshold = 1000;
+
+volatile int primaryIntervals[arrayLength];
+volatile int secondaryIntervals[arrayLength];
 volatile int primaryArrayIndex = 0;
 volatile int primaryArraySum = 0;
 volatile int secondaryArrayIndex = 0;
 volatile int secondaryArraySum = 0;
 
-const int magnetsOnPrimary = 2;
-const int magnetsOnSecondary = 2;
+const int teethOnPrimary = 2;
+const int teethOnSecondary = 2;
 
 const int resetPin = 10;
 
@@ -130,7 +133,7 @@ void loop() {
     logfile.println();
     logfile.flush();  
   } else {
-    if (averagedPrimaryInterval > 500 || averagedSecondaryInterval > 500) {
+    if (averagedPrimaryInterval > SDRecordingThreshold || averagedSecondaryInterval > SDRecordingThreshold) {
       beganRecording = true;
     }
   }
@@ -138,40 +141,40 @@ void loop() {
   
   if (ECHO_TO_SERIAL) {
     Serial.print(averagedPrimaryInterval);
-    Serial.print(",");
-    Serial.print(averagedSecondaryInterval);
-    Serial.print(",");
-    Serial.print(millis());
+//    Serial.print(",");
+//    Serial.print(averagedSecondaryInterval);
+//    Serial.print(",");
+//    Serial.print(millis());
     Serial.println();
   }
-  
+  delay(10);
 }
 
 void primaryIncrement() {
-  Serial.println("haha");
+//  Serial.println("haha");
   primaryTimer2 = millis();
-  primaryArrayIndex = (++primaryArrayIndex) % 50;
+  primaryArrayIndex = (++primaryArrayIndex) % arrayLength;
   primaryIntervals[primaryArrayIndex] = primaryTimer2 - primaryTimer1;
   primaryTimer1 = primaryTimer2;
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < arrayLength ; i++) {
     primaryArraySum += primaryIntervals[i];
   }
-  averagedPrimaryInterval = 1000000 / (16 * (primaryArraySum / 8));
+  averagedPrimaryInterval = 1000000 / (16 * teethOnPrimary * (primaryArraySum / arrayLength));
   //Serial.println(averagedPrimaryInterval);
   primaryArraySum = 0;
 }
 
 
 void secondaryIncrement() {
-  Serial.println("ahah");
+//  Serial.println("ahah");
   secondaryTimer2 = millis();
-  secondaryArrayIndex = (++secondaryArrayIndex) % 50;
+  secondaryArrayIndex = (++secondaryArrayIndex) % arrayLength;
   secondaryIntervals[secondaryArrayIndex] = secondaryTimer2 - secondaryTimer1;
   secondaryTimer1 = secondaryTimer2;
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < arrayLength; i++) {
     secondaryArraySum += secondaryIntervals[i];
   }
-  averagedSecondaryInterval = 1000000 / (16 * (secondaryArraySum / 8));
+  averagedSecondaryInterval = 1000000 / (16 * teethOnSecondary * (secondaryArraySum / arrayLength));
   //Serial.println(averagedSecondaryInterval);
   secondaryArraySum = 0;
 }
