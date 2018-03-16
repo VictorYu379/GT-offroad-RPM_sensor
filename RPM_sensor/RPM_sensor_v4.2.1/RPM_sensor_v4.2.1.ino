@@ -11,6 +11,7 @@
  * (Serial) because of how the SD card shield is soldered
  */
 #include "SD.h"
+#include "RTClib.h"
 
 /*
  * RPM Data Declarations
@@ -43,12 +44,8 @@ const int teethOnSecondary = 2;
 
 const int resetPin = 10;
 
-/*
- * SD Card Declarations
- */
-// the digital pins that connect to the LEDs
-#define redLEDpin 3
-#define greenLEDpin 4
+// the instance of real time clock, using RTC library
+RTC_PCF8523 rtc;
 
 // for the data logging shield, we use digital pin 10 for the SD cs line
 const int chipSelect = 10;
@@ -57,7 +54,7 @@ const int chipSelect = 10;
 int line;
 
 // the logging file
-int folderNumber;
+String folderName;
 File logfile;
 char filename[] = "RPM00.CSV";
 int logfileID = 0;
@@ -81,9 +78,6 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Initialized Interrupts");
 
-  pinMode(redLEDpin, OUTPUT);
-  pinMode(greenLEDpin, OUTPUT);
-
   // initialize the SD card
   Serial.print("Initializing SD card...");
   // make sure that the default chip select pin is set to
@@ -98,8 +92,8 @@ void setup() {
   }
   Serial.println("card initialized.");
 
-  folderNumber = setFolder();
-  setLogfile(folderNumber);
+  folderName = setFolder();
+  setLogfile(folderName);
   
   if (!logfile) {
     error("couldnt create file");
@@ -122,7 +116,7 @@ void setup() {
 void loop() {
   if (beganRecording) {
     if (logfile.size() > 10485760) {
-      setLogfile(folderNumber);
+      setLogfile(folderName);
     }
         
     logfile.print(averagedPrimaryInterval);
@@ -184,23 +178,32 @@ void error(String error) {
   while(true) delay(1);
 }
 
-int setFolder() {
+String setFolder() {
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
+  }
+  DateTime now = rtc.now();
+  String nian = String(now.year());
+  String yue = String(now.month());
+  String ri = String(now.day());
+  Serial.println(nian + yue + ri);
   int start = 1;
-  while (SD.exists(String(start))) {
+  while (SD.exists(nian + yue + ri + "-" + String(start))) {
     start++;
   }
-  SD.mkdir(String(start));
-  return start;
+  SD.mkdir(nian + yue + ri + "-" + String(start));
+  return nian + yue + ri + "-" + String(start);
 }
 
-void setLogfile(int folderNum) {
+void setLogfile(String folderName) {
   // create a new file
   for (uint8_t i = logfileID; i < 100; i++) {
     filename[3] = i / 10 + '0';
     filename[4] = i % 10 + '0';
-    if (! SD.exists(String(folderNum) + "/" + filename)) {
+    if (! SD.exists(String(folderName) + "/" + filename)) {
       // only open a new file if it doesn't exist
-      logfile = SD.open(String(folderNum) + "/" + filename, FILE_WRITE);
+      logfile = SD.open(String(folderName) + "/" + filename, FILE_WRITE);
       logfileID = i;
       break;  // leave the loop!
     }
