@@ -1,4 +1,4 @@
-#include "SD.h"
+#include <SD.h>
 #include "RTClib.h"
 #include <Wire.h>
 #include <Adafruit_MMA8451.h>
@@ -122,7 +122,7 @@ void initializeAcceler() {
   for(int i = 0; i < 4; i++) {
     tcaselect(i);
     if (! mma[i].begin()) {
-      Serial.println("Couldnt start");
+      Serial.println("Couldn't start");
       while (1);
     }
     Serial.println("MMA8451 found!");
@@ -132,8 +132,18 @@ void initializeAcceler() {
     Serial.print("Range = "); Serial.print(2 << mma[i].getRange());  
     Serial.println("G");  
   }
-  Serial.println("Initialized accelerators!"):
+  Serial.println("Initialized accelerators!");
 }
+
+
+void tcaselect(uint8_t i) {
+  if (i > 7) return;
+ 
+  Wire.beginTransmission(TCAADDR);
+  Wire.write(1 << i);
+  Wire.endTransmission();  
+}
+
 
 void initializeSD() {
   
@@ -209,6 +219,12 @@ void setLogfile(String folderName) {
 }
 
 
+void error(String error) {
+  Serial.println(error);
+  while(true) delay(1);
+}
+
+
 
 
 
@@ -242,16 +258,16 @@ void secondaryIncrement() {
 
 
 void accelerLoop() {
+  int loopnum = 0;
   while (loopnum < 4) {
     mma[loopnum].read();
     sensors_event_t event; 
-    mma[sensornum].getEvent(&event);
+    mma[loopnum].getEvent(&event);
     accelers[loopnum * 3] = event.acceleration.x;
     accelers[loopnum * 3 + 1] = event.acceleration.y;
     accelers[loopnum * 3 + 2] = event.acceleration.z;
     loopnum++;
   }
-  loopnum = 0;
 }
 
 
@@ -268,7 +284,6 @@ void logLoop() {
     if (logfile.size() > 52428800) {
       setLogfile(folderName);
     }
-    int accelersIndex = 0;
     logfile.print(averagedPrimaryInterval);
     logfile.print(",");
     logfile.print(averagedSecondaryInterval);
@@ -281,6 +296,7 @@ void logLoop() {
     logfile.print(",");
     logfile.print(fr);
     logfile.print(",");
+    int accelersIndex = 0;
     while (accelersIndex < 12) {
       logfile.print(accelers[accelersIndex]);
       logfile.print(",");
@@ -309,6 +325,7 @@ void logLoop() {
     Serial.print(",");
     Serial.print(fr);
     Serial.print(",");
+    int accelersIndex = 0;
     while (accelersIndex < 12) {
       Serial.print(accelers[accelersIndex]);
       Serial.print(",");
